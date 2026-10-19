@@ -1,0 +1,25 @@
+# Environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Java / Maven
+target/
+*.class
+*.jar
+*.war
+
+# Node / Vite
+node_modules/
+dist/
+.vite/
+coverage/
+
+# IDE and operating system files
+.idea/
+.DS_Store
+*.iml
+
+# Logs and local uploads
+*.log
+uploads/
