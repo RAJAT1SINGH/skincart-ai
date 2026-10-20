@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 750" role="img" aria-labelledby="title desc">
+  <title id="title">Illustrative demo simulation</title>
+  <desc id="desc">A calm, abstract illustration used to demonstrate the simulation viewer in mock mode.</desc>
+  <defs>
+    <linearGradient id="bg" x2="0" y2="1"><stop stop-color="#e9efe7"/><stop offset="1" stop-color="#f6ece2"/></linearGradient>
+    <linearGradient id="skin" x2="1"><stop stop-color="#d9b294"/><stop offset="1" stop-color="#edcbb0"/></linearGradient>
+  </defs>
+  <rect width="600" height="750" rx="24" fill="url(#bg)"/>
+  <circle cx="300" cy="300" r="205" fill="#f7f8f2" opacity=".85"/>
+  <path d="M166 680c19-117 68-168 134-168s115 51 134 168" fill="#8da18d"/>
+  <path d="M196 289c0-111 45-181 104-181s104 70 104 181v81c0 108-48 177-104 177s-104-69-104-177z" fill="url(#skin)"/>
+  <path d="M194 302c-26-106-7-219 105-219 109 0 139 95 103 229-13-29-28-50-51-66-55 29-102 21-145 2-3 19-7 36-12 54z" fill="#4f5b4e"/>
+  <path d="M232 345c14-8 28-8 42 0m53 0c14-8 28-8 42 0" fill="none" stroke="#493c37" stroke-linecap="round" stroke-width="7"/>
+  <path d="M291 383c-5 23-8 39-5 47 6 7 15 8 27 3" fill="none" stroke="#b88068" stroke-linecap="round" stroke-width="6"/>
+  <path d="M257 451c24 15 61 15 86 0" fill="none" stroke="#9d6256" stroke-linecap="round" stroke-width="7"/>
+  <circle cx="224" cy="404" r="34" fill="#f8d8c6" opacity=".19"/><circle cx="370" cy="404" r="34" fill="#f8d8c6" opacity=".19"/>
+  <path d="M218 415c15-14 31-18 47-10m75 0c16-8 32-4 47 10" fill="none" stroke="#f4dfd2" stroke-linecap="round" stroke-width="10" opacity=".55"/>
+  <text x="300" y="716" text-anchor="middle" fill="#53695a" font-family="Arial, sans-serif" font-size="18" letter-spacing="3">DEMO SIMULATION</text>
+</svg>

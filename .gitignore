@@ -23,3 +23,6 @@ coverage/
 # Logs and local uploads
 *.log
 uploads/
+
+# Local test images
+/test-data/

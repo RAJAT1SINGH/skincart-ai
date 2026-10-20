@@ -1,50 +1,53 @@
-# SkinCart AI Development Rules
+# Repository Development Rules
 
-## Project scope
+## Stack and structure
 
-SkinCart AI is an AI-powered skincare shopping experience. The planned user journey is:
-
-1. Upload a selfie.
-2. Analyze skin with YouCam.
-3. Identify skin concerns.
-4. Build a personalized skincare routine.
-5. Recommend products.
-6. Simulate skincare results with YouCam.
-7. Show a before-and-after view and provide a path to shop.
-
-Do not implement application functionality until the relevant implementation phase is authorized and its requirements are available. In particular, do not guess YouCam API request or response formats. The official API documentation must be reviewed before implementing the YouCam integration.
-
-## Architecture and stack
-
-- Backend: Java 21, Spring Boot 3.x, Maven, PostgreSQL, REST APIs.
+- Backend: Java 21, Spring Boot 3.x, Maven, PostgreSQL, Flyway, REST.
 - Frontend: React, TypeScript, Vite, Tailwind CSS, Axios.
-- Backend dependency direction: Controller → Service → Client and/or Repository.
-- Use DTOs at API and layer boundaries. Keep internal domain models independent of provider models.
-- Isolate YouCam behind a dedicated client/adapter. The frontend must never receive or contain the YouCam API key.
-- Use constructor dependency injection and small, focused classes. Apply SOLID principles where they simplify the design; avoid unnecessary abstractions and over-engineering.
+- Keep backend dependencies flowing from controller to service to provider/client or repository.
+- Use DTOs at API boundaries. Keep application domain models independent from external provider models.
+- Use constructor injection and focused classes. Apply SOLID principles where they simplify the design; avoid unnecessary abstractions.
 
-## Security, privacy, and configuration
+## Provider integrations
 
-- Load configuration and credentials from environment variables or an approved secret store. Do not hardcode credentials.
-- Never log API keys, uploaded image contents, or other sensitive image data. Keep logs useful and avoid personal data.
-- Validate external input and apply appropriate request-size and file-type limits when upload functionality is implemented.
-- Decide image storage, consent, retention, and deletion behavior before implementing persistence for selfies or simulations.
-- Keep local secrets out of Git. `.env.example` may document variable names and safe placeholders only.
-- Support `YOUCAM_MOCK=true` for deterministic development and test responses without calling YouCam or consuming API credits.
+- Keep Skin Analysis and Skin Simulation behind their provider interfaces and dedicated adapters.
+- Do not invent external API request or response contracts. Verify changes against current official provider documentation.
+- Use `YOUCAM_MOCK=true` for deterministic local development and tests. Do not make real provider calls unless the task explicitly requires and authorizes them.
+- Keep provider credentials on the backend. Supply secrets through environment variables or an approved secret store; never add credentials as code or configuration defaults.
+- Never log credentials, authorization headers, signed upload URLs, image bytes, or sensitive image data. Keep provider diagnostics bounded and sanitized.
 
-## Quality and change workflow
+## Security and data handling
 
-Before changing application code:
+- Validate external input, including uploaded file type and size.
+- Do not expose provider credentials, signed URLs, internal provider references, or sensitive image data through frontend code or public API responses.
+- Keep local credentials and private test images out of Git.
+- Avoid medical-diagnosis, severity, confidence, or clinical-outcome claims unless supported by the actual API contract and product requirements.
 
-1. Inspect the repository and applicable instructions.
-2. Understand the existing implementation and identify affected files.
-3. Make the smallest complete change that fulfills the task.
-4. Add or update unit tests for business logic and integration tests for important APIs when appropriate.
-5. Run the relevant tests and build, then fix failures.
-6. Summarize the changes and verification performed.
+## Change workflow
 
-Do not rewrite working code unnecessarily. Keep API contracts explicit, handle errors consistently, and use meaningful logging without secrets or sensitive image data.
+Before modifying code:
 
-## Current phase
+1. Inspect these rules, the relevant documentation, and the existing implementation.
+2. Identify affected files and preserve unrelated working behavior.
+3. Make the smallest complete change; do not rewrite working code unnecessarily.
+4. Add or update relevant unit or integration tests when behavior changes.
+5. Run the relevant tests and builds, then address failures.
+6. Summarize the changes and verification results.
 
-Phase 0 is repository planning and documentation only. Do not add backend or frontend business functionality until a later phase is requested.
+Backend verification:
+
+```sh
+cd backend
+mvn test
+mvn package
+```
+
+Frontend verification:
+
+```sh
+cd frontend
+npm test
+npm run build
+```
+
+Keep REST contracts stable unless a confirmed bug or an explicit requirement calls for a change. Prefer readable, meaningful names and comments that explain non-obvious decisions.

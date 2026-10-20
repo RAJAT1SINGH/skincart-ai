@@ -1,0 +1,57 @@
+server:
+  port: ${SERVER_PORT:8080}
+  error:
+    include-message: never
+
+spring:
+  application:
+    name: skincart-backend
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/skincart}
+    username: ${DATABASE_USERNAME:}
+    password: ${DATABASE_PASSWORD:}
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  flyway:
+    enabled: true
+  servlet:
+    multipart:
+      max-file-size: ${MAX_UPLOAD_SIZE:10MB}
+      max-request-size: ${MAX_UPLOAD_REQUEST_SIZE:11MB}
+
+logging:
+  file:
+    name: ${SKINCART_LOG_FILE:/tmp/skincart-backend.log}
+  level:
+    root: INFO
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+  endpoint:
+    health:
+      show-details: never
+
+app:
+  cors:
+    allowed-origin: ${CORS_ALLOWED_ORIGIN:http://localhost:5173}
+  upload:
+    max-file-size: ${MAX_UPLOAD_SIZE:10MB}
+
+youcam:
+  api-key: ${YOUCAM_API_KEY:}
+  base-url: ${YOUCAM_BASE_URL:https://yce-api-01.makeupar.com}
+  mock: ${YOUCAM_MOCK:false}
+  poll-interval: ${YOUCAM_POLL_INTERVAL:10s}
+  max-poll-attempts: ${YOUCAM_MAX_POLL_ATTEMPTS:6}
+  connect-timeout: ${YOUCAM_CONNECT_TIMEOUT:5s}
+  request-timeout: ${YOUCAM_REQUEST_TIMEOUT:30s}
+  concerns: ${YOUCAM_CONCERNS:wrinkle,pore,texture,acne}
