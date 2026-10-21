@@ -12,7 +12,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skincart.common.AnalysisStatus;
 import com.skincart.provider.ProviderException;
+import com.skincart.provider.youcam.dto.YouCamSkinSimulationRequest;
 import com.skincart.simulation.SkinSimulationFocus;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.system.CapturedOutput;
@@ -30,6 +32,26 @@ class YouCamSkinSimulationClientTest {
     private static final String API_TOKEN = "unit-test-token";
 
     @Test
+    void serializesOnlyTheSelectedEffectAtItsConfiguredIntensity() throws Exception {
+        ObjectMapper objectMapper = new ObjectMapper();
+        assertSerializedEffect(objectMapper, SkinSimulationFocus.PORE, "pores", "0.65");
+        assertSerializedEffect(objectMapper, SkinSimulationFocus.ACNE, "acne", "0.60");
+        assertSerializedEffect(objectMapper, SkinSimulationFocus.WRINKLE, "wrinkle", "0.60");
+        assertSerializedEffect(objectMapper, SkinSimulationFocus.TEXTURE, "texture", "0.60");
+    }
+
+    private static void assertSerializedEffect(
+            ObjectMapper objectMapper, SkinSimulationFocus focus, String effectName, String intensity)
+            throws Exception {
+        var body = objectMapper.readTree(objectMapper.writeValueAsBytes(
+                YouCamSkinSimulationRequest.forFocus("file-123", focus)));
+        assertThat(body.size()).isEqualTo(2);
+        assertThat(body.get("src_file_id").asText()).isEqualTo("file-123");
+        assertThat(body.has(effectName)).isTrue();
+        assertThat(body.get(effectName).decimalValue()).isEqualByComparingTo(new BigDecimal(intensity));
+    }
+
+    @Test
     @ExtendWith(OutputCaptureExtension.class)
     void createsOneDocumentedEffectTaskAndMapsTheResultUrl(CapturedOutput output) {
         var clients = clients();
@@ -38,7 +60,7 @@ class YouCamSkinSimulationClientTest {
                 .andExpect(method(HttpMethod.POST))
                 .andExpect(header(HttpHeaders.AUTHORIZATION, "Bearer " + API_TOKEN))
                 .andExpect(content().json("""
-                        {"src_file_id":"file-123","pores":0.3}
+                        {"src_file_id":"file-123","pores":0.65}
                         """, true))
                 .andRespond(withSuccess("{\"status\":200,\"data\":{\"task_id\":\"sim-task-1\"}}", MediaType.APPLICATION_JSON));
         clients.server()

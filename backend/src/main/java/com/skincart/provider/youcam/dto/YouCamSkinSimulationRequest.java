@@ -13,14 +13,17 @@ public record YouCamSkinSimulationRequest(
         BigDecimal pores,
         BigDecimal texture) {
 
-    private static final BigDecimal MVP_INTENSITY = new BigDecimal("0.3");
+    private static final BigDecimal ACNE_INTENSITY = new BigDecimal("0.60");
+    private static final BigDecimal WRINKLE_INTENSITY = new BigDecimal("0.60");
+    private static final BigDecimal PORE_INTENSITY = new BigDecimal("0.65");
+    private static final BigDecimal TEXTURE_INTENSITY = new BigDecimal("0.60");
 
     public static YouCamSkinSimulationRequest forFocus(String sourceFileId, SkinSimulationFocus focus) {
         return switch (focus) {
-            case ACNE -> new YouCamSkinSimulationRequest(sourceFileId, MVP_INTENSITY, null, null, null);
-            case WRINKLE -> new YouCamSkinSimulationRequest(sourceFileId, null, MVP_INTENSITY, null, null);
-            case PORE -> new YouCamSkinSimulationRequest(sourceFileId, null, null, MVP_INTENSITY, null);
-            case TEXTURE -> new YouCamSkinSimulationRequest(sourceFileId, null, null, null, MVP_INTENSITY);
+            case ACNE -> new YouCamSkinSimulationRequest(sourceFileId, ACNE_INTENSITY, null, null, null);
+            case WRINKLE -> new YouCamSkinSimulationRequest(sourceFileId, null, WRINKLE_INTENSITY, null, null);
+            case PORE -> new YouCamSkinSimulationRequest(sourceFileId, null, null, PORE_INTENSITY, null);
+            case TEXTURE -> new YouCamSkinSimulationRequest(sourceFileId, null, null, null, TEXTURE_INTENSITY);
         };
     }
 }
