@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import ResultsPage from './ResultsPage';
 import type { RecommendationResponse } from '../types/recommendation';
@@ -89,6 +89,66 @@ describe('ResultsPage', () => {
     expect(screen.getByRole('img', { name: 'Original uploaded selfie' })).toHaveAttribute('src', 'blob:uploaded-selfie');
     expect(screen.getByRole('img', { name: 'AI-generated visual simulation' })).toHaveAttribute('src', simulation.resultImageUrl);
     expect(screen.getByText('This visualization is illustrative and does not predict medical or clinical outcomes.')).toBeInTheDocument();
+  });
+
+  it('adds a focus comparison using the same original and simulation images', () => {
+    const simulation = {
+      analysisId: 'analysis-1', concernCode: 'pore', focusLabel: 'Pore appearance',
+      resultImageUrl: 'https://images.example.test/simulated.jpg', mock: false,
+    };
+    render(<ResultsPage {...props} simulation={{ status: 'loaded', data: simulation }} />);
+
+    const focusComparison = screen.getByRole('region', { name: 'Focus comparison' });
+    expect(within(focusComparison).getByRole('heading', { name: 'Focus comparison' })).toBeInTheDocument();
+    expect(within(focusComparison).getByText('Pore focus')).toBeInTheDocument();
+    expect(within(focusComparison).getByText(/representative UI focus guide/i)).toBeInTheDocument();
+    expect(within(focusComparison).getByText(/not an exact YouCam detection mask/i)).toBeInTheDocument();
+    expect(within(focusComparison).getByRole('img', { name: 'Original Pore focus crop' })).toHaveAttribute('src', props.originalImageUrl);
+    expect(within(focusComparison).getByRole('img', { name: 'AI Simulation Pore focus crop' })).toHaveAttribute('src', simulation.resultImageUrl);
+    expect(within(focusComparison).getByText('Original')).toBeInTheDocument();
+    expect(within(focusComparison).getByText('AI Simulation')).toBeInTheDocument();
+  });
+
+  it.each([
+    ['pore', 'Pore focus', 0.50, 0.57, 0.28, 0.20],
+    ['acne', 'Acne focus', 0.64, 0.58, 0.28, 0.24],
+    ['wrinkle', 'Wrinkle focus', 0.50, 0.28, 0.38, 0.16],
+    ['texture', 'Texture focus', 0.64, 0.52, 0.30, 0.26],
+  ])('uses the normalized %s focus coordinates for both crops', (concernCode, label, centerX, centerY, width, height) => {
+    const simulation = {
+      analysisId: 'analysis-1', concernCode, focusLabel: label,
+      resultImageUrl: 'https://images.example.test/simulated.jpg', mock: false,
+    };
+    render(<ResultsPage {...props} simulation={{ status: 'loaded', data: simulation }} />);
+
+    const focusComparison = screen.getByRole('region', { name: 'Focus comparison' });
+    const sourceCrop = within(focusComparison).getByRole('img', { name: 'Original ' + label + ' crop' });
+    const resultCrop = within(focusComparison).getByRole('img', { name: 'AI Simulation ' + label + ' crop' });
+    const cropWidth = Math.min(width * 1.3, 1);
+    const cropHeight = Math.min(height * 1.3, 1);
+    const percent = (value: number) => String(Number((value * 100).toFixed(3))) + '%';
+    const expectedStyle = {
+      width: percent(1 / cropWidth),
+      left: percent(0.5 - centerX / cropWidth),
+      top: percent(0.5 - centerY / cropHeight),
+    };
+
+    expect(sourceCrop).toHaveStyle(expectedStyle);
+    expect(resultCrop).toHaveStyle(expectedStyle);
+    expect(cropWidth).toBeGreaterThan(width);
+    expect(cropHeight).toBeGreaterThan(height);
+  });
+
+  it('keeps the primary comparison and shows a fallback for unsupported focus concerns', () => {
+    const simulation = {
+      analysisId: 'analysis-1', concernCode: 'redness', focusLabel: 'Redness',
+      resultImageUrl: 'https://images.example.test/simulated.jpg', mock: false,
+    };
+    render(<ResultsPage {...props} simulation={{ status: 'loaded', data: simulation }} />);
+
+    expect(screen.getByRole('img', { name: 'Original uploaded selfie' })).toHaveAttribute('src', props.originalImageUrl);
+    expect(screen.getByRole('img', { name: 'AI-generated visual simulation' })).toHaveAttribute('src', simulation.resultImageUrl);
+    expect(screen.getByRole('region', { name: 'Focus comparison' })).toHaveTextContent('Focus comparison is unavailable for this concern.');
   });
 
   it('renders the uploaded original and simulation result independently', () => {

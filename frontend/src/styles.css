@@ -184,6 +184,16 @@ h1, h2, h3, p { margin-top: 0; }
 .simulation-image-frame { display: grid; min-height: 260px; place-items: center; overflow: hidden; background: #f0f2ed; }
 .simulation-image-frame img { display: block; width: 100%; max-height: 520px; aspect-ratio: 4 / 5; object-fit: contain; }
 .simulation-image-card figcaption { padding: 11px 13px; color: #4e6854; font-size: 10px; font-weight: 700; }
+.focus-comparison { margin-top: 20px; padding: 16px; border: 1px solid #e3e9e1; border-radius: 10px; background: #fafbf8; }
+.focus-comparison-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px 14px; margin-bottom: 12px; }
+.focus-comparison-heading h3 { margin: 0; color: #344f3b; font: 500 18px Georgia, serif; }
+.focus-comparison-heading p { display: flex; flex-wrap: wrap; gap: 5px 10px; margin: 0; color: #738177; font-size: 10px; line-height: 1.5; }
+.focus-comparison-heading strong { color: #375947; }
+.focus-comparison-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.focus-comparison-card { min-width: 0; overflow: hidden; margin: 0; border: 1px solid #e3e9e1; border-radius: 9px; background: #fff; }
+.focus-comparison-frame { position: relative; width: 100%; aspect-ratio: 4 / 3; overflow: hidden; background: #f0f2ed; }
+.focus-comparison-frame img { position: absolute; display: block; height: auto; max-width: none; }
+.focus-comparison-card figcaption { padding: 10px 12px; color: #4e6854; font-size: 10px; font-weight: 700; }
 .simulation-focus { display: flex; align-items: center; gap: 9px; margin: 8px 0 4px; color: #738177; font-size: 11px; }
 .simulation-focus strong { color: #375947; }
 .simulation-disclaimer, .simulation-mock-note { margin: 12px 0 0; color: #849087; font-size: 10px; line-height: 1.6; }
@@ -249,6 +259,9 @@ h1, h2, h3, p { margin-top: 0; }
   .routine-tab { min-width: 110px; }
   .simulation-image-grid { grid-template-columns: 1fr; }
   .simulation-image-frame { min-height: 220px; }
+  .focus-comparison { padding: 12px; }
+  .focus-comparison-heading { align-items: flex-start; flex-direction: column; }
+  .focus-comparison-grid { grid-template-columns: 1fr; }
   .simulation-error, .simulation-expired { align-items: flex-start; flex-direction: column; }
   .results-cta { align-items: stretch; flex-direction: column; padding-top: 25px; }
   .results-cta .button { width: 100%; }

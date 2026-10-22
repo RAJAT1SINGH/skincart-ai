@@ -32,6 +32,16 @@ type SimulationLoadable =
 
 const supportedConcernCodes = new Set(['acne', 'wrinkle', 'pore', 'texture']);
 
+type SimulationFocusArea = { label: string; centerX: number; centerY: number; width: number; height: number };
+const simulationFocusAreas: Record<string, SimulationFocusArea | undefined> = {
+  pore: { label: 'Pore focus', centerX: 0.50, centerY: 0.57, width: 0.28, height: 0.20 },
+  acne: { label: 'Acne focus', centerX: 0.64, centerY: 0.58, width: 0.28, height: 0.24 },
+  wrinkle: { label: 'Wrinkle focus', centerX: 0.50, centerY: 0.28, width: 0.38, height: 0.16 },
+  texture: { label: 'Texture focus', centerX: 0.64, centerY: 0.52, width: 0.30, height: 0.26 },
+};
+const focusCropScale = 1.3;
+const asPercent = (value: number) => String(Number((value * 100).toFixed(3))) + '%';
+
 export default function ResultsPage({ analysis, originalImageUrl, recommendations, routine, simulation, onRetryRecommendations, onRetryRoutine, onSimulate, onStartAgain }: ResultsPageProps) {
   const [routineTab, setRoutineTab] = useState<'morning' | 'evening'>('morning');
   const supportedConcerns = analysis.concerns.filter((concern) => supportedConcernCodes.has(concern.code));
@@ -85,6 +95,12 @@ export default function ResultsPage({ analysis, originalImageUrl, recommendation
                 <figure className="simulation-image-card"><div className="simulation-image-frame"><img alt="Original uploaded selfie" src={originalImageUrl} /></div><figcaption>Original</figcaption></figure>
                 <figure className="simulation-image-card"><div className="simulation-image-frame"><img alt={simulation.data.mock ? 'Illustrative demo simulation' : 'AI-generated visual simulation'} onError={() => setResultImageUnavailable(true)} src={simulation.data.resultImageUrl} /></div><figcaption>{simulation.data.mock ? 'Demo simulation' : 'Simulation'}</figcaption></figure>
               </div>}
+              {!resultImageUnavailable && <FocusComparison
+                focusArea={simulationFocusAreas[simulation.data.concernCode]}
+                onResultImageError={() => setResultImageUnavailable(true)}
+                originalImageUrl={originalImageUrl}
+                resultImageUrl={simulation.data.resultImageUrl}
+              />}
               {simulation.data.mock && <p className="simulation-mock-note">Mock mode uses fixed demo images and did not process your photo.</p>}
             </>}
           </>}
@@ -96,6 +112,66 @@ export default function ResultsPage({ analysis, originalImageUrl, recommendation
       <footer className="site-footer"><Brand compact /><span>SkinCart AI · Skincare, thoughtfully personalized.</span><span>Demo catalog</span></footer>
     </div>
   );
+}
+
+function FocusComparison({
+  focusArea,
+  onResultImageError,
+  originalImageUrl,
+  resultImageUrl,
+}: {
+  focusArea?: SimulationFocusArea;
+  onResultImageError: () => void;
+  originalImageUrl: string;
+  resultImageUrl: string;
+}) {
+  const [sourceAspectRatio, setSourceAspectRatio] = useState<number>();
+  const cropWidth = focusArea ? Math.min(focusArea.width * focusCropScale, 1) : 1;
+  const cropHeight = focusArea ? Math.min(focusArea.height * focusCropScale, 1) : 1;
+  const cropImageStyle = focusArea ? {
+    width: asPercent(1 / cropWidth),
+    left: asPercent(0.5 - focusArea.centerX / cropWidth),
+    top: asPercent(0.5 - focusArea.centerY / cropHeight),
+  } : undefined;
+  const frameAspectRatio = sourceAspectRatio ? sourceAspectRatio * cropWidth / cropHeight : undefined;
+
+  return <section aria-labelledby="focus-comparison-heading" className="focus-comparison">
+    <div className="focus-comparison-heading">
+      <h3 id="focus-comparison-heading">Focus comparison</h3>
+      {focusArea
+        ? <p><strong>{focusArea.label}</strong><span>Representative UI focus guide; not an exact YouCam detection mask.</span></p>
+        : <p>Focus comparison is unavailable for this concern.</p>}
+    </div>
+    {focusArea && cropImageStyle && <div className="focus-comparison-grid">
+      <figure className="focus-comparison-card">
+        <div className="focus-comparison-frame" style={{ aspectRatio: frameAspectRatio }}>
+          <img
+            alt={'Original ' + focusArea.label + ' crop'}
+            onLoad={(event) => {
+              const image = event.currentTarget;
+              if (image.naturalWidth > 0 && image.naturalHeight > 0) {
+                setSourceAspectRatio(image.naturalWidth / image.naturalHeight);
+              }
+            }}
+            src={originalImageUrl}
+            style={cropImageStyle}
+          />
+        </div>
+        <figcaption>Original</figcaption>
+      </figure>
+      <figure className="focus-comparison-card">
+        <div className="focus-comparison-frame" style={{ aspectRatio: frameAspectRatio }}>
+          <img
+            alt={'AI Simulation ' + focusArea.label + ' crop'}
+            onError={onResultImageError}
+            src={resultImageUrl}
+            style={cropImageStyle}
+          />
+        </div>
+        <figcaption>AI Simulation</figcaption>
+      </figure>
+    </div>}
+  </section>;
 }
 
 function FocusChoices({ concerns, selectedCode, onSelect }: {
